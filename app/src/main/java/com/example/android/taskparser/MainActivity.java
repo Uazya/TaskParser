@@ -34,24 +34,29 @@ public class MainActivity extends AppCompatActivity {
         tag = "intent ";
         Log.v(tag, intent.toString());
 
-        String intent_string = intent.getStringExtra(Intent.EXTRA_TEXT);
+        String intent_string;
 
-        if(intent_string != null){
-            list = parse(intent_string);
+        if(savedInstanceState == null) {
+            intent_string = intent.getStringExtra(Intent.EXTRA_TEXT);
+
+            if(intent_string != null){
+                list = parse(intent_string);
+            }
+            else {
+                list = new String[] {"one", "two", "three"};
+            }
+            tag = "list ";
+            Log.v(tag, list.toString());
         }
         else {
-            list = new String[] {"one", "two", "three"};
+            toBuyList = savedInstanceState.getParcelableArrayList("toBuyList");
         }
-
-        tag = "list ";
-        Log.v(tag, list.toString());
 
         if(toBuyList != null) {
             tag = "toBuyList ";
             Log.v(tag, toBuyList.toString());
         }
-
-        if(toBuyList == null && alredyBoughtList == null) {
+        else if (toBuyList == null && alredyBoughtList == null) {
             toBuyList = new ArrayList<>();
             alredyBoughtList = new ArrayList<>();
 
@@ -83,10 +88,16 @@ public class MainActivity extends AppCompatActivity {
         for(int i = 0; i < toBuyList.size(); i++){
             if(taskName.equals(toBuyList.get(i).getTaskName())) {
                 Log.v("onClick: position ", String.valueOf(i));
-                alredyBoughtList.add(toBuyList.get(i));
+                //alredyBoughtList.add(toBuyList.get(i));
                 toBuyList.remove(i);
             }
         }
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle bundle){
+        bundle.putParcelableArrayList("toBuyList", toBuyList);
+        super.onSaveInstanceState(bundle);
     }
 }
