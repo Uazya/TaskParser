@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -12,92 +13,31 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    TaskAdapter adapter;
-    ArrayList<TaskItem> toBuyList, alredyBoughtList;
-    String tag;
-
-    String[] list;
+    EditText mEditText;
+    String line;
+    Intent sendIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.list_view);
-
-        tag = "StartOnCreate";
-        if(toBuyList != null) {
-            tag = "toBuyList ";
-            Log.v(tag, toBuyList.toString());
-        }
+        setContentView(R.layout.activity_main);
 
         Intent intent = getIntent();
+        String intentText = intent.getStringExtra(Intent.EXTRA_TEXT);
 
-        tag = "intent ";
-        Log.v(tag, intent.toString());
+        sendIntent = new Intent(this,  ToBuyListActivity.class);
 
-        String intent_string;
-
-        if(savedInstanceState == null) {
-            intent_string = intent.getStringExtra(Intent.EXTRA_TEXT);
-
-            if(intent_string != null){
-                list = parse(intent_string);
-            }
-            else {
-                list = new String[] {"one", "two", "three"};
-            }
-            tag = "list ";
-            Log.v(tag, list.toString());
+        if(intentText != null) {
+            line = intentText;
+            sendIntent.putExtra(Intent.EXTRA_TEXT, line);
+            startActivity(sendIntent);
         }
-        else {
-            toBuyList = savedInstanceState.getParcelableArrayList("toBuyList");
-        }
-
-        if(toBuyList != null) {
-            tag = "toBuyList ";
-            Log.v(tag, toBuyList.toString());
-        }
-        else if (toBuyList == null && alredyBoughtList == null) {
-            toBuyList = new ArrayList<>();
-            alredyBoughtList = new ArrayList<>();
-
-            for (int i = 0; i < list.length; i++) {
-                Log.v("After parse: ", list[i]);
-                toBuyList.add(new TaskItem(list[i]));
-            }
-        }
-
-        adapter = new TaskAdapter(this, toBuyList);
-
-        ListView listView = findViewById(R.id.list_view);
-        listView.setAdapter(adapter);
     }
 
-    public String[] parse (String line){
-
-        String[] result = line.split("\n");
-
-        for(int i = 0; i < result.length; i++){
-            result[i] = result[i].trim();
-        }
-        return result;
-    }
-
-    public void onClick(View view){
-        String taskName = ((TextView) view).getText().toString();
-        Log.v("onClick: taskName ", taskName);
-        for(int i = 0; i < toBuyList.size(); i++){
-            if(taskName.equals(toBuyList.get(i).getTaskName())) {
-                Log.v("onClick: position ", String.valueOf(i));
-                //alredyBoughtList.add(toBuyList.get(i));
-                toBuyList.remove(i);
-            }
-        }
-        adapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle bundle){
-        bundle.putParcelableArrayList("toBuyList", toBuyList);
-        super.onSaveInstanceState(bundle);
+    public void onClickMain(View view){
+        mEditText = (EditText) findViewById(R.id.edit_text);
+        line = mEditText.getText().toString();
+        sendIntent.putExtra(Intent.EXTRA_TEXT, line);
+        startActivity(sendIntent);
     }
 }
